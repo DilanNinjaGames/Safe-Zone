@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafeZone - Determinación Digital</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323:wght@400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+
+<!-- ══════════ HEADER ══════════ -->
+<header class="ut-header">
+    <h1 class="ut-title">SafeZone</h1>
+    <p class="ut-subtitle">Tu espacio seguro. No pierdas la DETERMINACIÓN.</p>
+</header>
+
+<!-- ══════════ NAV ══════════ -->
+<nav class="ut-nav">
+    <a href="#bestiario"              class="ut-btn fight"><span class="hi">❤️</span> INFO</a>
+    <a href="#juego" onclick="Game.startQuestionnaire(); return false;"
+                                      class="ut-btn act">  <span class="hi">❤️</span> ACTUAR</a>
+    <a href="overwrite.html"          class="ut-btn mercy overwrite-nav"><span class="hi">❤️</span> OVERWRITE</a>
+</nav>
+
+<div class="container">
+
+    <!-- ══════════ SECCIÓN JUEGO ══════════ -->
+    <section id="juego" class="ut-box main-battle">
+        <h2 class="pf-sm" style="margin-bottom:14px;">⚔ Encuentro en curso...</h2>
+
+        <div class="ut-inner-box" id="gameContainer">
+
+            <!-- PANTALLA: INTRO -->
+            <div id="screen-intro">
+                <div class="dialogue-text" id="introText">
+                    * Un extraño brillo parpadea en tu pantalla...<br>
+                    * Sientes que algo está a punto de comenzar.
+                </div>
+                <div class="game-choices" style="margin-top:18px;">
+                    <button class="game-choice safe" onclick="Game.startQuestionnaire()">
+                        ❤ COMENZAR AVENTURA
+                    </button>
+                    <button class="game-choice" onclick="Game.startStory()">
+                        📖 MODO HISTORIA (Ruta Narrativa)
+                    </button>
+                </div>
+            </div>
+
+            <!-- PANTALLA: CUESTIONARIO -->
+            <div id="screen-quiz" style="display:none;">
+                <div class="progress-wrap">
+                    <span id="qProgress">Pregunta 1 / 10</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="qBar" style="width:10%;"></div>
+                    </div>
+                </div>
+                <div id="qSteps"></div>
+            </div>
+
+            <!-- PANTALLA: BATALLA -->
+            <div id="screen-battle" style="display:none;">
+                <div class="battle-area">
+                    <!-- Sprite enemigo -->
+                    <div class="enemy-sprite">
+                        <canvas class="sprite-canvas" id="enemySprite" width="80" height="80"></canvas>
+                        <div class="enemy-name" id="enemyName">???</div>
+                        <div class="enemy-hp-wrap">
+                            HP
+                            <div class="enemy-hp-bar">
+                                <div class="enemy-hp-fill" id="enemyHpFill" style="width:100%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Diálogo y stats del jugador -->
+                    <div class="dialogue-box">
+                        <div class="dialogue-text" id="battleText">* ...</div>
+                        <div class="player-stats">
+                            <span class="player-name-lv" id="playerNameLv">JUGADOR  LV 1</span>
+                            <span class="player-hp-label">❤ HP</span>
+                            <span class="hp-bar-outer">
+                                <span class="hp-bar-fill" id="playerHpFill" style="width:100%;"></span>
+                            </span>
+                            <span class="hp-numbers" id="playerHpNums">20 / 20</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Arena de esquivar -->
+                <div class="battle-arena" id="battleArena">
+                    <span id="playerHeart" style="left:50%;top:50%;transform:translate(-50%,-50%)">❤</span>
+                </div>
+
+                <!-- Botones de acción -->
+                <div class="action-btns" id="actionBtns">
+                    <button class="act-btn fight" id="btnFight" onclick="Game.doFight()">⚔ LUCHAR</button>
+                    <button class="act-btn act"   id="btnAct"   onclick="Game.showActMenu()">💬 ACTUAR</button>
+                    <button class="act-btn mercy" id="btnMercy" onclick="Game.doMercy()">🕊 PIEDAD</button>
+                    <button class="act-btn item"  id="btnItem"  onclick="Game.showItemMenu()">🎒 ITEM</button>
+                </div>
+
+                <!-- Barra de carga de PIEDAD -->
+                <div class="mercy-charge-wrap" id="mercyChargeWrap" style="display:none;">
+                    <span id="mercyChargeLabel">PIEDAD: cargando...</span>
+                    <div class="mercy-charge-bar">
+                        <div class="mercy-charge-fill" id="mercyChargeFill" style="width:0%;"></div>
+                    </div>
+                </div>
+
+                <!-- Menú dinámico (ACT / ITEM) -->
+                <div class="dynamic-menu" id="dynamicMenu"></div>
+
+                <!-- Recursos de ayuda (nivel alto) -->
+                <div class="help-resources" id="helpResources">
+                    <h3>⭐ LÍNEAS DE APOYO — BOLIVIA</h3>
+                    <div class="help-line">📞 <strong>Defensoría del Pueblo:</strong> 800-10-0466 (gratuito)</div>
+                    <div class="help-line">📞 <strong>Línea de Violencia:</strong> 800-10-0200 (gratuito)</div>
+                    <div class="help-line">📞 <strong>Policía Nacional:</strong> 110</div>
+                    <div class="help-line">📞 <strong>SEPDAVI (víctimas):</strong> (02) 2200-200</div>
+                    <div class="help-line">💻 <strong>ATIC (delitos digitales):</strong> atic.policia.bo</div>
+                    <div class="help-line ty" style="margin-top:10px;">
+                        * No estás solo/a. Tu DETERMINACIÓN no se apaga.
+                    </div>
+                </div>
+
+                <!-- Mensaje de apoyo -->
+                <div class="support-msg" id="supportMsg">
+                    <div class="sm-title">💜 MENSAJE DE APOYO</div>
+                    <span id="supportMsgText"></span>
+                </div>
+            </div>
+
+            <!-- PANTALLA: HISTORIA NARRATIVA -->
+            <div id="screen-story" style="display:none;">
+                <div class="dialogue-text" id="storyText">* ...</div>
+                <div class="game-choices" id="storyChoices" style="margin-top:16px;"></div>
+                <div style="margin-top:12px;">
+                    <button class="act-btn act" onclick="Game.backToIntro()" style="font-size:9px;">↩ VOLVER AL INICIO</button>
+                </div>
+            </div>
+
+            <!-- PANTALLA: FINAL -->
+            <div id="screen-end" style="display:none;">
+                <div class="dialogue-text" id="endText">* FIN</div>
+                <div id="endResources"></div>
+                <div style="margin-top:16px; display:flex; gap:10px; flex-wrap:wrap;">
+                    <button class="game-choice safe" onclick="Game.reset()">♻ JUGAR DE NUEVO</button>
+                    <button class="act-btn act" onclick="Game.backToIntro()" style="font-size:9px;">↩ INICIO</button>
+                </div>
+            </div>
+
+        </div><!-- /ut-inner-box -->
+    </section>
+
+    <!-- ══════════ BESTIARIO ══════════ -->
+    <section id="bestiario">
+        <h2 class="pf" style="font-size:14px; color:var(--yellow); margin-bottom:8px;">Bestiario de Amenazas Digitales</h2>
+        <p style="font-size:19px; color:#999; margin-bottom:14px;">* Haz clic en una amenaza para inspeccionarla en la casilla de batalla.</p>
+        <div class="bestiary-grid">
+
+            <div class="info-card ut-box level-low" data-level="1" data-atk="1" data-def="10"
+                 data-check="Bajo nivel de riesgo. Mantén tus configuraciones de privacidad activas y sigue navegando con cuidado.">
+                <h3>Nv. 1: Usuario Pacífico</h3>
+                <p class="stats">HP <span class="heart-s">❤</span><span class="hp-bar" style="--hp-w:100%"></span> 10/10</p>
+                <p class="desc">Casi no usa redes. El mundo parece tranquilo.</p>
+            </div>
+
+            <div class="info-card ut-box level-low" data-level="2" data-atk="3" data-def="8"
+                 data-check="Has visto conflictos en línea. Aprender a reportar contenido te da poder para proteger a otros.">
+                <h3>Nv. 2: Testigo Pasivo</h3>
+                <p class="stats">HP <span class="heart-s">❤</span><span class="hp-bar" style="--hp-w:80%"></span> 16/20</p>
+                <p class="desc">Ha visto insultos. Siente una leve incomodidad.</p>
+            </div>
+
+            <div class="info-card ut-box level-low" data-level="3" data-atk="5" data-def="7"
+                 data-check="Comentarios ofensivos lastiman. Bloquea, reporta y habla con alguien de confianza. No es tu culpa.">
+                <h3>Nv. 3: Víctima Leve</h3>
+                <p class="stats">HP <span class="heart-s">❤</span><span class="hp-bar" style="--hp-w:60%"></span> 18/30</p>
+                <p class="desc">Comentarios ofensivos. Empiezas a perder LV.</p>
+            </div>
+
+            <div class="info-card ut-box level-mid" data-level="4" data-atk="10" data-def="5"
+                 data-check="Insultos repetidos = ciberbullying. Documenta todo con capturas de pantalla y fecha. Denuncia.">
+                <h3>Nv. 4: Ciberbullying</h3>
+                <p class="stats">HP <span class="heart-s">❤</span><span class="hp-bar" style="--hp-w:90%"></span> 36/40</p>
+                <p class="desc">Insultos repetidos. Un enemigo persistente.</p>
+            </div>
+
+            <div class="info-card ut-box level-mid" data-level="5" data-atk="12" data-def="4"
+                 data-check="Tu contenido es tuyo. Compartirlo sin permiso viola la ley. Reporta la publicación y pide asesoría legal.">
+                <h3>Nv. 5: Ladrón de Datos</h3>
+                <p class="stats">HP <span class="heart-s">❤</span><span class="hp-bar" style="--hp-w:70%"></span> 35/50</p>
+                <p class="desc">Comparten tu contenido sin permiso.</p>
+            </div>
+
+            <div class="info-card ut-box level-mid" data-level="6" data-atk="15" data-def="3"
+                 data-check="Rumores y difamación digital tienen consecuencias legales en Bolivia. Guarda evidencia y busca asesoría.">
+                <h3>Nv. 6: Difamación</h3>
+                <p class="stats">HP <span class="heart-s">❤</span><span class="hp-bar" style="--hp-w:50%"></span> 30/60</p>
+                <p class="desc">Rumores y mentiras. Tu reputación flaquea.</p>
+            </div>
+
+            <div class="info-card ut-box level-high" data-level="7" data-atk="20" data-def="2"
+                 data-check="Las amenazas en línea son delito. Corta todo contacto, guarda evidencia y llama al 110 (Policía).">
+                <h3>Nv. 7: Acosador Grave</h3>
+                <p class="stats">HP <span class="heart-s">❤</span><span class="hp-bar" style="--hp-w:100%"></span> 70/70</p>
+                <p class="desc">Amenazas e intimidación. El miedo te paraliza.</p>
+            </div>
+
+            <div class="info-card ut-box level-high" data-level="8" data-atk="25" data-def="1"
+                 data-check="SEXTORSIÓN: NO cedas. NO pagues. Denuncia a la ATIC (atic.policia.bo) y llama al 800-10-0200.">
+                <h3>Nv. 8: Sextorsión</h3>
+                <p class="stats">HP <span class="heart-s">❤</span><span class="hp-bar" style="--hp-w:95%"></span> 76/80</p>
+                <p class="desc">Chantaje íntimo. Un ataque crítico al alma.</p>
+            </div>
+
+            <div class="info-card ut-box level-high" data-level="9" data-atk="22" data-def="2"
+                 data-check="El grooming y la manipulación emocional son patrones. Si algo se siente raro, confía en ti. Habla con un adulto.">
+                <h3>Nv. 9: Manipulador</h3>
+                <p class="stats">HP <span class="heart-s">❤</span><span class="hp-bar" style="--hp-w:50%"></span> ?/90</p>
+                <p class="desc">Manipulación emocional. Máscara amable.</p>
+            </div>
+
+            <div class="info-card ut-box level-boss" data-level="10" data-atk="99" data-def="0"
+                 data-check="DOXXING: Actúa rápido. Alerta a familia, cambia contraseñas, denuncia al 110 y a la Defensoría (800-10-0466).">
+                <h3>Nv. 10: DOXXER (JEFE)</h3>
+                <p class="stats">HP <span class="heart-s">❤</span><span class="hp-bar" style="--hp-w:100%"></span> 99/99</p>
+                <p class="desc">Datos públicos. Persecución total.</p>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ══════════ VOLUNTARIADO ══════════ -->
+    <section id="piedad" class="ut-box save-point" style="margin-top:30px;">
+        <h2 class="pf-sm">
+            <span class="save-star">⭐</span> Únete a nuestra Red de Apoyo
+        </h2>
+        <p class="dialogue-text" style="margin-top:14px;">* Ver que hay personas dispuestas a escucharte...</p>
+        <p class="dialogue-text ty">* Te llena de DETERMINACIÓN.</p>
+
+        <!-- Formulario conectado a Formspree (gratuito, 50 envíos/mes)
+             Para activar: ve a formspree.io, crea un form y reemplaza YOUR_FORM_ID -->
+        <form id="redForm"
+              action="https://formspree.io/f/YOUR_FORM_ID"
+              method="POST"
+              class="ut-form"
+              style="margin-top:14px;"
+              onsubmit="handleRedSubmit(event)">
+
+            <input  type="text"   name="nombre"  placeholder="[ Tu Nombre ]"  required>
+            <input  type="email"  name="email"   placeholder="[ Tu Correo ]"   required>
+            <select name="rol" style="background:#000; color:#FFF;">
+                <option value="psicologo"  style="background:#000; color:#FFF;">Soy Psicólogo/a</option>
+                <option value="voluntario" style="background:#000; color:#FFF;">Quiero ser Voluntario/a</option>
+                <option value="abogado"    style="background:#000; color:#FFF;">Asesor/a Legal</option>
+                <option value="educador"   style="background:#000; color:#FFF;">Educador/a</option>
+            </select>
+            <textarea name="mensaje"
+                      placeholder="[ Tu motivación o mensaje... ]"
+                      style="background:transparent; border:3px solid #FFF; color:#FFF;
+                             font-family:var(--mono); font-size:22px; padding:10px;
+                             margin:8px 0; width:100%; resize:vertical; min-height:80px;
+                             outline:none;"
+                      onfocus="this.style.borderColor='var(--yellow)'"
+                      onblur="this.style.borderColor='#FFF'"></textarea>
+
+            <button type="submit" class="ut-btn-rect" id="redSubmitBtn">Postularme</button>
+        </form>
+
+        <div id="redSuccess"
+             style="display:none; margin-top:14px; padding:14px;
+                    border:3px solid var(--text-yellow,#FFFF00); font-size:22px; line-height:1.5;">
+            ✓ ¡Registro enviado! Gracias por unirte a la red.<br>
+            <span style="color:#FFFF00;">* Tu determinación importa. ❤</span>
+        </div>
+    </section>
+
+</div><!-- /container -->
+
+<!-- BOTÓN PÁNICO FLOTANTE -->
+<button class="panic-btn" onclick="Game.openPanic()">❤ PEDIR AYUDA</button>
+
+<!-- FOOTER -->
+<footer class="ut-footer">
+    <button class="ut-btn-reset" id="resetBtn">❤ RESET</button>
+    <p>SafeZone by SyntaxError 08-03-2026 · Cochabamba - Bolivia</p>
+</footer>
+
+<!-- MODAL PÁNICO -->
+<div class="modal" id="panicModal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal-content" style="width:min(600px,96%); max-height:92vh; overflow-y:auto; padding:0;">
+
+        <header class="modal-header" style="padding:16px 20px 12px;">
+            <h2 class="pf" style="font-size:13px; color:var(--orange);">🆘 RED DE APOYO</h2>
+            <button class="modal-close" onclick="Game.closeModal()">✕</button>
+        </header>
+
+        <!-- PESTAÑAS -->
+        <div style="display:flex; border-bottom:3px solid #222;">
+            <button id="tabBtnLines" onclick="panicTab('lines')"
+                style="flex:1; font-family:var(--pixel,'Press Start 2P',monospace); font-size:8px;
+                       padding:10px 6px; background:#111; color:var(--orange,#FF9933);
+                       border:none; border-bottom:3px solid var(--orange,#FF9933);
+                       cursor:pointer; letter-spacing:1px;">
+                📞 LÍNEAS
+            </button>
+            <button id="tabBtnChat" onclick="panicTab('chat')"
+                style="flex:1; font-family:var(--pixel,'Press Start 2P',monospace); font-size:8px;
+                       padding:10px 6px; background:transparent; color:#444;
+                       border:none; border-bottom:3px solid transparent;
+                       cursor:pointer; letter-spacing:1px;">
+                💬 CHAT
+            </button>
+        </div>
+
+        <!-- ── PANEL LÍNEAS ── -->
+        <div id="panicPanelLines" style="padding:18px 20px;">
+            <p class="ty" style="margin-bottom:10px;">* Llamando a los refuerzos... Tu determinación no se apaga.</p>
+            <p style="margin-bottom:14px; font-size:18px;">Si estás en peligro o necesitas apoyo, aquí tienes ayuda real en Bolivia:</p>
+
+            <p class="modal-phone">📞 Línea Gratuita Nacional: <span class="ty">800-10-8004</span> <span style="color:#555;font-size:16px;">(gratuito)</span></p>
+            <p class="modal-phone">💬 WhatsApp Institucional: <span class="ty">72006607</span></p>
+            <p class="modal-phone">📞 Línea Violencia: <span class="ty">800-10-0200</span> <span style="color:#555;font-size:16px;">(gratuito)</span></p>
+            <p class="modal-phone">📞 Policía Nacional: <span class="ty">110</span></p>
+            <p class="modal-phone">📞 SEPDAVI: <span class="ty">71567158</span></p>
+
+            <p style="margin-top:14px; color:#888; font-size:17px; line-height:1.6;">
+                No tienes que enfrentar esto solo/a.<br>Hablar con alguien es un acto de valentía.
+            </p>
+        </div>
+
+        <!-- ── PANEL CHAT ── -->
+        <div id="panicPanelChat" style="display:none; padding:14px 20px;">
+
+            <!-- Cabecera voluntario -->
+            <div id="chatHeader"
+                 style="display:flex; align-items:center; gap:12px; padding:10px 14px;
+                        border:3px solid var(--magenta,#FF00FF); margin-bottom:12px;
+                        background:rgba(255,0,255,.05);">
+                <div id="chatAvatar" style="font-size:30px; line-height:1; min-width:34px; text-align:center;">⏳</div>
+                <div style="flex:1; overflow:hidden;">
+                    <div id="chatName"
+                         style="font-family:var(--pixel,'Press Start 2P',monospace); font-size:8px;
+                                color:var(--magenta,#FF00FF); margin-bottom:3px;">Conectando...</div>
+                    <div id="chatRole" style="font-size:17px; color:#888;">Buscando voluntario disponible</div>
+                </div>
+                <span style="font-family:var(--pixel,monospace); font-size:7px; color:var(--green,#00FF00); white-space:nowrap;">● EN LÍNEA</span>
+            </div>
+
+            <!-- Burbuja de mensajes -->
+            <div id="chatMessages"
+                 style="height:200px; overflow-y:auto; border:3px solid #333; padding:10px 12px;
+                        background:#000; margin-bottom:10px;
+                        display:flex; flex-direction:column; gap:8px; scroll-behavior:smooth;">
+            </div>
+
+            <!-- Input -->
+            <div style="display:flex; gap:8px;">
+                <input id="chatInput" type="text"
+                       placeholder="[ Escribe aquí... ]"
+                       maxlength="200"
+                       style="flex:1; background:transparent; border:3px solid #FFF; color:#FFF;
+                              font-family:var(--mono,'VT323',monospace); font-size:20px;
+                              padding:8px 10px; outline:none;"
+                       onfocus="this.style.borderColor='var(--yellow,#FFFF00)'"
+                       onblur="this.style.borderColor='#FFF'"
+                       onkeydown="if(event.key==='Enter')sendChatMsg()">
+                <button onclick="sendChatMsg()"
+                        style="font-family:var(--pixel,'Press Start 2P',monospace); font-size:8px;
+                               padding:8px 14px; background:transparent;
+                               color:var(--magenta,#FF00FF); border:3px solid var(--magenta,#FF00FF);
+                               cursor:pointer; white-space:nowrap;">
+                    ENVIAR
+                </button>
+            </div>
+            <p style="font-size:15px; color:#333; margin-top:8px; text-align:center; font-style:italic;">
+                ✦ Simulación de voluntarios SafeZone — para práctica y acompañamiento ✦
+            </p>
+        </div>
+
+        <footer class="modal-footer" style="padding:12px 20px;">
+            <button class="ut-btn-rect" onclick="Game.closeModal()">Cerrar</button>
+        </footer>
+    </div>
+</div>
+
+<script src="main.js"></script>
+
+<script>
+/* ── Formulario Red de Apoyo → Formspree ── */
+async function handleRedSubmit(e) {
+    e.preventDefault();
+    const form = e.target;
+    const btn  = document.getElementById('redSubmitBtn');
+    btn.textContent = '⏳ Enviando...';
+    btn.disabled    = true;
+    try {
+        const res = await fetch(form.action, {
+            method:  'POST',
+            body:    new FormData(form),
+            headers: { 'Accept': 'application/json' },
+        });
+        if (res.ok) {
+            form.style.display = 'none';
+            document.getElementById('redSuccess').style.display = 'block';
+        } else {
+            btn.textContent = '⚠ Error — intenta de nuevo';
+            btn.disabled    = false;
+        }
+    } catch {
+        btn.textContent = '⚠ Sin conexión';
+        btn.disabled    = false;
+    }
+}
+
+/* ════════════════════════════════════════════
+   TABS DEL MODAL DE PÁNICO
+   ════════════════════════════════════════════ */
+function panicTab(tab) {
+    const isLines = tab === 'lines';
+    document.getElementById('panicPanelLines').style.display = isLines ? 'block' : 'none';
+    document.getElementById('panicPanelChat').style.display  = isLines ? 'none'  : 'block';
+
+    const btnL = document.getElementById('tabBtnLines');
+    const btnC = document.getElementById('tabBtnChat');
+    btnL.style.color       = isLines ? 'var(--orange,#FF9933)' : '#444';
+    btnL.style.borderBottom= isLines ? '3px solid var(--orange,#FF9933)' : '3px solid transparent';
+    btnL.style.background  = isLines ? '#111' : 'transparent';
+    btnC.style.color       = isLines ? '#444' : 'var(--magenta,#FF00FF)';
+    btnC.style.borderBottom= isLines ? '3px solid transparent' : '3px solid var(--magenta,#FF00FF)';
+    btnC.style.background  = isLines ? 'transparent' : '#111';
+
+    if (!isLines && !window._chatStarted) initChat();
+}
+
+/* ════════════════════════════════════════════
+   CHATBOT DE VOLUNTARIOS — SIMULACIÓN
+   ════════════════════════════════════════════ */
+const VOLUNTEERS = [
+    { name:'Ana Flores',    role:'Psicóloga Clínica',          avatar:'🧠', color:'#FF00FF' },
+    { name:'Carlos Mamani', role:'Voluntario de Apoyo',        avatar:'💙', color:'#00CCFF' },
+    { name:'Luisa Quispe',  role:'Asesora Legal',              avatar:'⚖️',  color:'#FFFF00' },
+    { name:'Diego Vargas',  role:'Educador / Orientador',      avatar:'📚', color:'#00FF00' },
+    { name:'María Torres',  role:'Psicóloga Juvenil',          avatar:'🌸', color:'#FF9933' },
+];
+
+// Respuestas del bot según palabras clave
+const BOT_RESPONSES = [
+    { keys:['hola','buenas','hey','hi'],
+      replies:['Hola, estoy aquí contigo. 💜 ¿Cómo te sientes hoy?',
+               'Hola. Me alegra que hayas escrito. Cuéntame, ¿qué está pasando?',
+               'Hola 👋 No estás solo/a. Estoy aquí para escucharte.'] },
+    { keys:['acoso','bullying','insulto','amenazan','molestan','atacan','odio'],
+      replies:['Eso que describes es muy serio y merece atención. ¿Puedes contarme más sobre lo que está pasando?',
+               'Entiendo que estás pasando por algo muy difícil. Documentar lo que ocurre puede ayudarte. ¿Tienes capturas de pantalla?',
+               'Gracias por contármelo. Lo que te hacen no está bien. ¿Ha pasado más de una vez?'] },
+    { keys:['miedo','asustado','asustada','aterrado','aterrada','tengo miedo'],
+      replies:['Es completamente válido sentir miedo. Estoy aquí contigo. ¿Estás en un lugar seguro ahora mismo?',
+               'Tu seguridad es lo primero. Si sientes que estás en peligro, llama al 110. Yo sigo aquí.'] },
+    { keys:['solo','sola','nadie','abandonado','abandonada','sin ayuda'],
+      replies:['No estás solo/a — yo estoy aquí, y hay toda una red detrás tuyo. 💜',
+               'Sé que puede sentirse así, pero hay personas que se preocupan por ti. Cuéntame más.'] },
+    { keys:['reportar','bloquear','denunciar','qué hago','qué hacer'],
+      replies:['Puedes reportar el contenido directamente en la plataforma donde ocurre. ¿Cuál es: Instagram, TikTok, WhatsApp?',
+               'El primer paso es guardar evidencia (capturas), luego bloquear al agresor y reportarlo. ¿Quieres que te guíe paso a paso?'] },
+    { keys:['gracias','thank','genial','bien','mejor'],
+      replies:['Me alegra mucho que te sientas mejor. 💜 Recuerda: siempre puedes volver aquí.',
+               '¡Eso es lo que queremos! Cuídate mucho, y si necesitas algo, la red de apoyo está aquí.'] },
+    { keys:['mal','terrible','horrible','triste','llorar','lloro'],
+      replies:['Lamento que estés pasando por algo tan difícil. Está bien sentirse así. ¿Quieres contarme qué pasó?',
+               'Gracias por confiar en mí. No tienes que cargar esto solo/a. Cuéntame.'] },
+    { keys:['sexting','foto','imagen','video','privado'],
+      replies:['Esto se llama violencia digital y es un delito. Tienes derecho a que ese contenido sea eliminado. ¿Quieres información sobre cómo proceder?',
+               'No es tu culpa. Puedes contactar a SEPDAVI (71567158) que maneja casos como este de forma confidencial.'] },
+];
+
+const FALLBACK = [
+    'Estoy aquí, cuéntame más. 💜',
+    'Entiendo. ¿Puedes decirme cómo te hace sentir eso?',
+    'Gracias por compartir eso conmigo. ¿Qué necesitas en este momento?',
+    'Sigo aquí contigo. No tienes que enfrentar esto solo/a.',
+    '¿Hay alguien de confianza cerca de ti que pueda acompañarte?',
+    'Lo que describes es importante. ¿Cuánto tiempo lleva pasando esto?',
+];
+
+let _volunteer = null;
+
+function initChat() {
+    window._chatStarted = true;
+    _volunteer = VOLUNTEERS[Math.floor(Math.random() * VOLUNTEERS.length)];
+
+    // Mostrar voluntario
+    document.getElementById('chatAvatar').textContent = _volunteer.avatar;
+    document.getElementById('chatName').textContent   = _volunteer.name;
+    document.getElementById('chatName').style.color   = _volunteer.color;
+    document.getElementById('chatRole').textContent   = _volunteer.role;
+
+    const msgs = document.getElementById('chatMessages');
+    msgs.innerHTML = '';
+
+    // Mensaje de bienvenida con delay simulado
+    setTimeout(() => {
+        addBotMsg('* Conectando con voluntario...');
+        setTimeout(() => {
+            addBotMsg(`Hola, soy ${_volunteer.name} (${_volunteer.role}). Estoy aquí para escucharte. 💜 ¿Cómo puedo ayudarte hoy?`);
+        }, 1200);
+    }, 600);
+}
+
+function addBotMsg(text) {
+    const msgs = document.getElementById('chatMessages');
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex; gap:8px; align-items:flex-start;';
+
+    const av = document.createElement('span');
+    av.textContent = _volunteer ? _volunteer.avatar : '💜';
+    av.style.cssText = 'font-size:20px; min-width:24px; text-align:center; margin-top:2px;';
+
+    const bubble = document.createElement('div');
+    bubble.style.cssText = `background:#111; border:2px solid ${_volunteer ? _volunteer.color : '#FF00FF'};
+        padding:8px 12px; font-family:var(--mono,'VT323',monospace); font-size:19px;
+        color:#FFF; line-height:1.4; max-width:85%; border-radius:0 8px 8px 8px;`;
+    bubble.textContent = text;
+
+    row.appendChild(av);
+    row.appendChild(bubble);
+    msgs.appendChild(row);
+    msgs.scrollTop = msgs.scrollHeight;
+}
+
+function addUserMsg(text) {
+    const msgs = document.getElementById('chatMessages');
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex; justify-content:flex-end;';
+
+    const bubble = document.createElement('div');
+    bubble.style.cssText = `background:#001a00; border:2px solid var(--green,#00FF00);
+        padding:8px 12px; font-family:var(--mono,'VT323',monospace); font-size:19px;
+        color:var(--green,#00FF00); line-height:1.4; max-width:85%; border-radius:8px 0 8px 8px;`;
+    bubble.textContent = text;
+
+    row.appendChild(bubble);
+    msgs.appendChild(row);
+    msgs.scrollTop = msgs.scrollHeight;
+}
+
+function getBotReply(userText) {
+    const lower = userText.toLowerCase();
+    for (const group of BOT_RESPONSES) {
+        if (group.keys.some(k => lower.includes(k))) {
+            return group.replies[Math.floor(Math.random() * group.replies.length)];
+        }
+    }
+    return FALLBACK[Math.floor(Math.random() * FALLBACK.length)];
+}
+
+function sendChatMsg() {
+    const input = document.getElementById('chatInput');
+    const text  = input.value.trim();
+    if (!text) return;
+    input.value = '';
+
+    addUserMsg(text);
+
+    // Simula tiempo de respuesta humano (1.2–2.8s)
+    const delay = 1200 + Math.random() * 1600;
+    setTimeout(() => {
+        addBotMsg(getBotReply(text));
+    }, delay);
+}
+</script>
+</body>
+</html>
